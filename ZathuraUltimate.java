@@ -25,6 +25,8 @@ class SoundManager {
                     Clip clip = AudioSystem.getClip();
                     clip.open(audioIn);
                     clip.start();
+                } else {
+                    System.err.println("Sound not found: " + filePath);
                 }
             } catch (Exception e) {}
         }).start();
@@ -44,6 +46,8 @@ class SoundManager {
                     } catch (Exception ex) {}
                     clip.loop(Clip.LOOP_CONTINUOUSLY);
                     clip.start();
+                } else {
+                    System.err.println("BGM not found: " + filePath);
                 }
             } catch (Exception e) {}
         }).start();
@@ -65,6 +69,7 @@ class PawnAsset {
         try {
             this.image = ImageIO.read(new File(path));
         } catch (IOException e) {
+            System.err.println("Image not found: " + path);
             this.image = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = this.image.createGraphics();
             g.setColor(themeColor);
@@ -92,7 +97,7 @@ class Player {
     PawnAsset asset;
     int position;
     int currentScore;
-    Stack<Integer> stepHistory; 
+    Stack<Integer> stepHistory;
 
     public Player(String name, PawnAsset asset) {
         this.name = name;
@@ -102,7 +107,7 @@ class Player {
         this.stepHistory = new Stack<>();
         this.stepHistory.push(0);
     }
-    
+
     public void reset() {
         this.position = 0;
         this.currentScore = 0;
@@ -132,7 +137,7 @@ class LeaderboardManager {
     public void updateStats(String name, int scoreToAdd, boolean isWin) {
         String key = name.trim().toLowerCase();
         PlayerStats stats = data.statsMap.getOrDefault(key, new PlayerStats(name));
-        stats.name = name; 
+        stats.name = name;
         stats.totalScore += scoreToAdd;
         if (isWin) stats.totalWins++;
         data.statsMap.put(key, stats);
@@ -177,12 +182,14 @@ class GameGraph {
 // 3. KELAS UTAMA GAME
 // ==========================================
 public class ZathuraUltimate extends JFrame {
-    
-    // CONFIG
-    private static final String IMG_PATH = "C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset IMG\\Map Zathura Landscape.png";
-    private static final String SOUND_DICE = "C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset Sound\\SUARA DADU.wav";
-    private static final String SOUND_MOVE = "C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset Sound\\SUARA PION GERAK.wav";
-    private static final String SOUND_BGM  = "C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset Sound\\BACKSOUND.wav"; 
+
+    // --- PATH CONFIG (UPDATED SESUAI FOLDER ASSETS) ---
+    // Menggunakan path relatif 'assets/image' dan 'assets/sound'
+    private static final String IMG_PATH   = "assets/image/Map Zathura Landscape.png";
+
+    private static final String SOUND_DICE = "assets/sound/SUARA DADU.wav";
+    private static final String SOUND_MOVE = "assets/sound/SUARA PION GERAK.wav";
+    private static final String SOUND_BGM  = "assets/sound/BACKSOUND.wav";
 
     private static final int ORG_W = 1920;
     private static final int ORG_H = 1080;
@@ -191,44 +198,44 @@ public class ZathuraUltimate extends JFrame {
     private static final Color COL_GREEN = new Color(46, 204, 113);
     private static final Color COL_RED = new Color(231, 76, 60);
     private static final Color COL_DARK_PANEL = new Color(0, 0, 0, 100);
-    private static final Color COL_TERMINAL_BG = new Color(10, 15, 20, 220); 
-    private static final Color COL_TERMINAL_TEXT = new Color(0, 255, 200); 
+    private static final Color COL_TERMINAL_BG = new Color(10, 15, 20, 220);
+    private static final Color COL_TERMINAL_TEXT = new Color(0, 255, 200);
 
     public static final PawnAsset[] PAWN_ASSETS = {
-        new PawnAsset("C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset IMG\\PION IJO.png", Color.GREEN),
-        new PawnAsset("C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset IMG\\PION BIRU.png", Color.CYAN),
-        new PawnAsset("C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset IMG\\PION HITAM.png", Color.GRAY),
-        new PawnAsset("C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset IMG\\PION MERAH.png", Color.RED),
-        new PawnAsset("C:\\Users\\X1 Carbon\\Documents\\ITS\\ASD\\ASD FP\\Asset IMG\\PION KUNING.png", Color.YELLOW)
+            new PawnAsset("assets/image/PION IJO.png", Color.GREEN),
+            new PawnAsset("assets/image/PION BIRU.png", Color.CYAN),
+            new PawnAsset("assets/image/PION HITAM.png", Color.GRAY),
+            new PawnAsset("assets/image/PION MERAH.png", Color.RED),
+            new PawnAsset("assets/image/PION KUNING.png", Color.YELLOW)
     };
 
     private Point[] nodePoints = {
-        new Point(1163, 709), new Point(1146, 638), new Point(1106, 583), new Point(1038, 577), new Point(977, 613),
-        new Point(917, 651), new Point(852, 686), new Point(777, 689), new Point(702, 691), new Point(626, 695),
-        new Point(558, 728), new Point(494, 766), new Point(430, 806), new Point(365, 845), new Point(295, 871),
-        new Point(298, 803), new Point(335, 691), new Point(294, 592), new Point(287, 526), new Point(351, 534),
-        new Point(423, 551), new Point(498, 567), new Point(569, 583), new Point(646, 599), new Point(728, 572),
-        new Point(774, 513), new Point(817, 453), new Point(907, 338), new Point(951, 283), new Point(997, 226),
-        new Point(1067, 200), new Point(1143, 216), new Point(1200, 265), new Point(1220, 339), new Point(1200, 412),
-        new Point(1146, 466), new Point(1070, 479), new Point(997, 458), new Point(932, 431), new Point(861, 396),
-        new Point(789, 362), new Point(714, 328), new Point(645, 297), new Point(575, 264), new Point(483, 221),
-        new Point(387, 191), new Point(281, 210), new Point(253, 343), new Point(360, 450), new Point(518, 469),
-        new Point(555, 360), new Point(376, 248), new Point(414, 355)
+            new Point(1163, 709), new Point(1146, 638), new Point(1106, 583), new Point(1038, 577), new Point(977, 613),
+            new Point(917, 651), new Point(852, 686), new Point(777, 689), new Point(702, 691), new Point(626, 695),
+            new Point(558, 728), new Point(494, 766), new Point(430, 806), new Point(365, 845), new Point(295, 871),
+            new Point(298, 803), new Point(335, 691), new Point(294, 592), new Point(287, 526), new Point(351, 534),
+            new Point(423, 551), new Point(498, 567), new Point(569, 583), new Point(646, 599), new Point(728, 572),
+            new Point(774, 513), new Point(817, 453), new Point(907, 338), new Point(951, 283), new Point(997, 226),
+            new Point(1067, 200), new Point(1143, 216), new Point(1200, 265), new Point(1220, 339), new Point(1200, 412),
+            new Point(1146, 466), new Point(1070, 479), new Point(997, 458), new Point(932, 431), new Point(861, 396),
+            new Point(789, 362), new Point(714, 328), new Point(645, 297), new Point(575, 264), new Point(483, 221),
+            new Point(387, 191), new Point(281, 210), new Point(253, 343), new Point(360, 450), new Point(518, 469),
+            new Point(555, 360), new Point(376, 248), new Point(414, 355)
     };
 
-    // --- LAYOUT DASHBOARD BARU (Dadu Paling Atas) ---
+    // --- POSISI UI DASHBOARD ---
     private static final int DASH_CENTER_X = 1760;
-    
-    // 1. Dice (Top)
+
+    // Dice (Paling Atas)
     private Point dicePos = new Point(DASH_CENTER_X, 120);
-    
-    // 2. Status Text (Below Dice)
+
+    // Status (Di Bawah Dadu)
     private Point statusPos = new Point(DASH_CENTER_X, 200);
-    
-    // 3. Log Screen (Middle-Bottom)
+
+    // Log Screen
     private Rectangle logArea = new Rectangle(DASH_CENTER_X - 110, 680, 220, 100);
 
-    // 4. Buttons (Bottom)
+    // Buttons
     private Rectangle btnRoll = new Rectangle(DASH_CENTER_X - 90, 820, 180, 70);
     private Rectangle btnReset = new Rectangle(DASH_CENTER_X - 90, 920, 180, 60);
 
@@ -241,12 +248,12 @@ public class ZathuraUltimate extends JFrame {
     private boolean isGreenStatus = true;
     private boolean isPrimeMode = false;
     private boolean extraTurn = false;
-    
+
     private LinkedList<String> eventLog = new LinkedList<>();
     private Map<Integer, Integer> secretShortcuts = new HashMap<>();
     private Map<Integer, Integer> scoreNodes = new HashMap<>();
     private GameGraph gameGraph;
-    
+
     private Random rand = new Random();
     private GamePanel panel;
     private LeaderboardManager leaderboard;
@@ -267,7 +274,7 @@ public class ZathuraUltimate extends JFrame {
             System.exit(0);
         }
 
-        // Init Panel DULUAN
+        // --- PENTING: INISIALISASI PANEL DULUAN ---
         panel = new GamePanel();
 
         initGameLogic();
@@ -278,7 +285,7 @@ public class ZathuraUltimate extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1280, 720);
         setLocationRelativeTo(null);
-        
+
         add(panel);
         setVisible(true);
     }
@@ -335,7 +342,7 @@ public class ZathuraUltimate extends JFrame {
             isRolling = true;
             SoundManager.play(SOUND_DICE);
             addEvent("ROLLING DICE...");
-            
+
             for (int i = 0; i < 15; i++) {
                 diceValue = rand.nextInt(6) + 1;
                 panel.repaint();
@@ -343,11 +350,11 @@ public class ZathuraUltimate extends JFrame {
             }
             diceValue = rand.nextInt(6) + 1;
             isRolling = false;
-            
+
             String status = isGreenStatus ? "GREEN (FORWARD)" : "RED (RETREAT)";
-            // addEvent("RESULT: " + diceValue + " | " + status); // Redundant if shown below dice
+            addEvent("RESULT: " + diceValue + " | " + status);
             if(isPrimeMode && isGreenStatus) addEvent("PRIME MODE: SHORTEST PATH!");
-            
+
             panel.repaint();
             movePlayerWithStack();
         }).start();
@@ -358,21 +365,21 @@ public class ZathuraUltimate extends JFrame {
             Player p = players[currentPlayerIdx];
             int finish = nodePoints.length - 1;
 
-            if (!isGreenStatus) { 
+            if (!isGreenStatus) {
                 for (int i = 0; i < diceValue; i++) {
-                    if (p.stepHistory.size() > 1) { 
-                        p.stepHistory.pop(); 
-                        int prevPos = p.stepHistory.peek(); 
+                    if (p.stepHistory.size() > 1) {
+                        p.stepHistory.pop();
+                        int prevPos = p.stepHistory.peek();
                         if (Math.abs(p.position - prevPos) > 1) addEvent("ALERT: RETREATING THRU WORMHOLE");
                         p.position = prevPos;
                         SoundManager.play(SOUND_MOVE);
                         panel.repaint();
                         try { Thread.sleep(400); } catch (Exception e) {}
-                    } else break; 
+                    } else break;
                 }
-            } 
-            else { 
-                if (isPrimeMode) { 
+            }
+            else {
+                if (isPrimeMode) {
                     List<Integer> path = gameGraph.getShortestPath(p.position, finish);
                     if (path.size() > 1) {
                         int stepsTaken = 0;
@@ -380,7 +387,7 @@ public class ZathuraUltimate extends JFrame {
                             int nextNode = path.get(i);
                             if (Math.abs(nextNode - p.position) > 1) addEvent("SYSTEM: SHORTCUT TAKEN!");
                             p.position = nextNode;
-                            p.stepHistory.push(nextNode); 
+                            p.stepHistory.push(nextNode);
                             SoundManager.play(SOUND_MOVE);
                             panel.repaint();
                             try { Thread.sleep(400); } catch (Exception e) {}
@@ -389,12 +396,12 @@ public class ZathuraUltimate extends JFrame {
                     }
                 } else {
                     for (int i = 0; i < diceValue; i++) {
-                        if (p.position < finish) { 
-                            p.position++; 
-                            p.stepHistory.push(p.position); 
+                        if (p.position < finish) {
+                            p.position++;
+                            p.stepHistory.push(p.position);
                             SoundManager.play(SOUND_MOVE);
-                            panel.repaint(); 
-                            try { Thread.sleep(300); } catch (Exception e) {} 
+                            panel.repaint();
+                            try { Thread.sleep(300); } catch (Exception e) {}
                         }
                     }
                 }
@@ -429,7 +436,7 @@ public class ZathuraUltimate extends JFrame {
     }
 
     private void resetGame() {
-        for (Player p : players) p.reset(); 
+        for (Player p : players) p.reset();
         currentPlayerIdx = 0;
         initGameLogic();
         diceValue = 1;
@@ -480,7 +487,7 @@ public class ZathuraUltimate extends JFrame {
 
             drawGameContent(g2, scale, offX, offY);
         }
-        
+
         private void drawGameContent(Graphics2D g2, double s, int ox, int oy) {
             class C { int x(int v){return ox+(int)(v*s);} int y(int v){return oy+(int)(v*s);} int z(int v){return(int)(v*s);} }
             C c = new C();
@@ -501,9 +508,9 @@ public class ZathuraUltimate extends JFrame {
             for(int i=0; i<nodePoints.length; i++){
                 Point p = nodePoints[i];
                 int nx = c.x(p.x), ny = c.y(p.y);
-                if(isStarNode(i)) { 
+                if(isStarNode(i)) {
                     g2.setColor(Color.YELLOW); g2.setStroke(new BasicStroke(c.z(3)));
-                    g2.drawOval(nx-c.z(15), ny-c.z(15), c.z(30), c.z(30)); 
+                    g2.drawOval(nx-c.z(15), ny-c.z(15), c.z(30), c.z(30));
                 }
                 if(scoreNodes.containsKey(i)) {
                     int val = scoreNodes.get(i);
@@ -520,9 +527,17 @@ public class ZathuraUltimate extends JFrame {
                 g2.drawString(String.valueOf(i+1), nx-c.z(7), ny+c.z(3));
             }
 
-            // --- UI DASHBOARD (REARRANGED) ---
-            
-            // A. Dadu (Paling Atas)
+            // 3. UI DASHBOARD
+            Player curr = players[currentPlayerIdx];
+            g2.setColor(curr.asset.themeColor);
+            g2.setFont(new Font("Impact", Font.BOLD, c.z(40)));
+            String tTxt = "TURN: "+curr.name.toUpperCase();
+            g2.drawString(tTxt, c.x(DASH_CENTER_X) - g2.getFontMetrics().stringWidth(tTxt)/2, c.y(80));
+
+            g2.setColor(Color.WHITE); g2.setFont(new Font("Arial", Font.BOLD, c.z(20)));
+            g2.drawString("SCORE: " + curr.currentScore, c.x(DASH_CENTER_X + 20), c.y(120));
+
+            // Dice (Paling Atas)
             int dx = c.x(dicePos.x), dy = c.y(dicePos.y);
             int dSz = c.z(100);
             g2.setColor(isRolling ? Color.WHITE : (isGreenStatus ? COL_GREEN : COL_RED));
@@ -531,27 +546,34 @@ public class ZathuraUltimate extends JFrame {
             g2.drawRoundRect(dx-dSz/2, dy-dSz/2, dSz, dSz, 20, 20);
             drawDicePips(g2, dx, dy, dSz, diceValue);
 
-            // B. Status (Di Bawah Dadu)
+            // Status (Di Bawah Dadu)
             g2.setColor(Color.WHITE); g2.setFont(new Font("Arial", Font.BOLD, c.z(20)));
             String stTxt = isRolling ? "ROLLING..." : (isGreenStatus ? "GREEN (MAJU)" : "RED (MUNDUR)");
             g2.drawString(stTxt, c.x(statusPos.x) - g2.getFontMetrics().stringWidth(stTxt)/2, c.y(statusPos.y));
 
-            // C. Turn & Score (Di Bawah Status)
-            Player curr = players[currentPlayerIdx];
-            g2.setColor(curr.asset.themeColor); g2.setFont(new Font("Impact", Font.BOLD, c.z(40)));
-            String tTxt = "TURN: "+curr.name.toUpperCase();
-            g2.drawString(tTxt, c.x(DASH_CENTER_X) - g2.getFontMetrics().stringWidth(tTxt)/2, c.y(260));
-            g2.setColor(Color.WHITE); g2.setFont(new Font("Arial", Font.BOLD, c.z(20)));
+            if(isPrimeMode) {
+                g2.setColor(Color.YELLOW); g2.setFont(new Font("Arial", Font.BOLD, c.z(16)));
+                String pTxt = "PRIME MODE ACTIVE!";
+                g2.drawString(pTxt, c.x(statusPos.x) - g2.getFontMetrics().stringWidth(pTxt)/2, c.y(statusPos.y)+c.z(25));
+            }
+
+            // Turn & Score (Di Bawah Status)
+            g2.setColor(curr.asset.themeColor);
+            g2.setFont(new Font("Impact", Font.BOLD, c.z(40)));
+            String turnTitle = "TURN: "+curr.name.toUpperCase();
+            g2.drawString(turnTitle, c.x(DASH_CENTER_X) - g2.getFontMetrics().stringWidth(turnTitle)/2, c.y(260));
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial", Font.BOLD, c.z(20)));
             g2.drawString("SCORE: " + curr.currentScore, c.x(DASH_CENTER_X), c.y(300));
 
-            // D. Leaderboards (Tengah)
-            int lbX = c.x(DASH_CENTER_X) - c.z(110); 
+            // LEADERBOARD PANELS (Tengah)
+            int lbX = c.x(DASH_CENTER_X) - c.z(110);
             int lbW = c.z(220);
             int lbH = c.z(140);
             drawLBPanel(g2, lbX, c.y(350), lbW, lbH, "TOP 5 WINS", COL_GREEN, leaderboard.getTopWins(), true, c);
             drawLBPanel(g2, lbX, c.y(510), lbW, lbH, "TOP 5 SCORES", new Color(255, 215, 0), leaderboard.getTopScores(), false, c);
 
-            // E. Log Screen (Di Bawah LB)
+            // Log Screen (Di Bawah LB)
             int lgX = c.x(logArea.x), lgY = c.y(logArea.y);
             int lgW = c.z(logArea.width), lgH = c.z(logArea.height);
             g2.setColor(COL_TERMINAL_BG); g2.fillRoundRect(lgX, lgY, lgW, lgH, 10, 10);
@@ -564,7 +586,7 @@ public class ZathuraUltimate extends JFrame {
                 txtY += c.z(15);
             }
 
-            // F. Buttons (Paling Bawah)
+            // Buttons (Paling Bawah)
             drawStyledButton(g2, c, btnRoll, "ROLL", COL_GREEN);
             drawStyledButton(g2, c, btnReset, "RESET", COL_RED);
 
@@ -682,13 +704,13 @@ class ZathuraSetupDialog extends JDialog {
         spinnerCount = new JSpinner(new SpinnerNumberModel(2, 2, 5, 1));
         spinnerCount.setPreferredSize(new Dimension(50, 30));
         spinnerCount.addChangeListener(e -> updatePlayerSlots());
-        
+
         ctrlPanel.add(lblCount); ctrlPanel.add(spinnerCount);
 
         listContainer = new JPanel();
         listContainer.setLayout(new BoxLayout(listContainer, BoxLayout.Y_AXIS));
         listContainer.setOpaque(false);
-        
+
         JPanel centerWrap = new JPanel(new BorderLayout());
         centerWrap.setOpaque(false);
         centerWrap.add(ctrlPanel, BorderLayout.NORTH);
@@ -699,7 +721,7 @@ class ZathuraSetupDialog extends JDialog {
         btnLaunch.setBackground(new Color(0, 180, 50)); btnLaunch.setForeground(Color.WHITE);
         btnLaunch.setFont(new Font("Arial", Font.BOLD, 14));
         btnLaunch.addActionListener(e -> { if (saveData()) { cancelled = false; dispose(); } });
-        
+
         JButton btnExit = new JButton("EXIT");
         btnExit.setBackground(new Color(150, 50, 50)); btnExit.setForeground(Color.WHITE);
         btnExit.setFont(new Font("Arial", Font.BOLD, 14));
@@ -711,7 +733,7 @@ class ZathuraSetupDialog extends JDialog {
 
         add(mainPanel);
         updatePlayerSlots();
-        
+
         MouseAdapter drag = new MouseAdapter() {
             int px, py;
             public void mousePressed(MouseEvent e) { px=e.getX(); py=e.getY(); }
@@ -756,15 +778,15 @@ class ZathuraSetupDialog extends JDialog {
             txtName = new JTextField("Cadet " + index);
             txtName.setForeground(Color.WHITE); txtName.setBackground(new Color(50,50,60));
             txtName.setCaretColor(Color.WHITE); txtName.setBorder(new MatteBorder(0,0,1,0,Color.CYAN));
-            
+
             JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0)); btnRow.setOpaque(false);
             for (PawnAsset asset : ZathuraUltimate.PAWN_ASSETS) {
                 JButton b = new JButton(new ImageIcon(asset.image.getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
                 b.setPreferredSize(new Dimension(30, 30));
                 b.setBackground(Color.DARK_GRAY);
-                b.addActionListener(e -> { 
-                    selectedAsset = asset; 
-                    imgPreview.setIcon(new ImageIcon(asset.image.getScaledInstance(30, 30, Image.SCALE_SMOOTH))); 
+                b.addActionListener(e -> {
+                    selectedAsset = asset;
+                    imgPreview.setIcon(new ImageIcon(asset.image.getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
                 });
                 btnRow.add(b);
             }
